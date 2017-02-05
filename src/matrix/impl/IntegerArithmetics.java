@@ -10,8 +10,8 @@ import matrix.NumberArithmetics;
 public class IntegerArithmetics implements NumberArithmetics<Integer>{
 
     private static final IntegerArithmetics ARIT = new IntegerArithmetics(); //singleton instance
-    private static final Integer ZERO = Integer.valueOf(0);
-    private static final Integer ONE = Integer.valueOf(1);
+    private static final Integer ZERO = 0;
+    private static final Integer ONE = 1;
     
     private IntegerArithmetics() {}
     

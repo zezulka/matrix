@@ -5,7 +5,10 @@
  */
 package matrix.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import matrix.Matrix;
 import misc.Errors;
 
@@ -17,23 +20,36 @@ import misc.Errors;
  */
 public class FullMatrix<T> implements Matrix<T> {
 
-    private final T[][] vals;
+    private final List<List<T>> vals;
+    private final int height;
+    private final int width;
+    private volatile int hashCode; //hashcode optimisation, cache usage
     
-    public FullMatrix(int width, int height) {
-        this.vals = (T[][]) (new Number[width][height]);
+    public FullMatrix(int height, int width) { 
+        this.vals = new ArrayList<>(height);
+        this.height = height;
+        this.width = width;
+        do {
+            List<T> row = new ArrayList<>(width);
+            for(int i = 0; i < width; i++) {
+                row.add(null);
+            }
+            this.vals.add(row);
+        } while(--height > 0);
     }
     
     public FullMatrix(T[][] vals) {
         if(vals == null) {
             throw new IllegalArgumentException("vals" + Errors.NULL_PTR);
         }
-        int width = vals[0].length;
-        this.vals = (T[][]) (new Object[vals.length][]);
-        for(int row = 0; row < vals.length; row++) {
-            if(vals[row].length != width) {
+        this.width = vals[0].length;
+        this.height = vals.length;
+        this.vals = new ArrayList<>(vals.length);
+        for(T[] row : vals) {
+            if(row.length != this.width) {
                 throw new IllegalArgumentException(Errors.MATRIX_ERR.toString());
             }
-            this.vals[row] = Arrays.copyOf(vals[row], width);
+            this.vals.add(Arrays.asList(row));
         }
     }
    
@@ -42,7 +58,7 @@ public class FullMatrix<T> implements Matrix<T> {
         if(this.getHeight() <= j || j < 0 || this.getWidth() <= i || i < 0) {
             return false;
         } 
-        this.vals[j][i] = val;
+        this.vals.get(j).set(i, val);
         return true;
     }
 
@@ -57,7 +73,7 @@ public class FullMatrix<T> implements Matrix<T> {
         if(this.getHeight() <= j || j < 0 || this.getWidth() <= i || i < 0) {
             return null;
         }
-        return this.vals[j][i];
+        return this.vals.get(j).get(i);
     }
 
     @Override
@@ -65,7 +81,7 @@ public class FullMatrix<T> implements Matrix<T> {
         if(vals == null) {
             return 0;
         }
-        return this.vals.length;
+        return this.height;
     }
 
     @Override
@@ -73,23 +89,77 @@ public class FullMatrix<T> implements Matrix<T> {
         if(vals == null) {
             return 0;
         }
-        return this.vals[0].length;
+        return this.width;
     }
     
     @Override 
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb = sb.append("Matrice with ").append(getHeight()).append(" rows and ").append(getWidth()).append(" columns.\n");
         if(vals == null) {
             return "";
         }
-        for(T[] row : vals) {
-            sb.append(' ');
-            for(T val : row) {
-                sb = sb.append(val).append(' ');
+        StringBuilder sb = new StringBuilder();
+        sb = sb.append("Matrice with ").append(getHeight()).append(" rows and ").append(getWidth()).append(" columns.\n");
+        for(List<T> list : vals) {
+            sb = sb.append(' ');
+            for(T item : list) {
+                sb = sb.append(item).append(' ');
             }
-            sb = sb.append('\n');
+            sb = sb.append(" \n");
         }
         return sb.toString();
+    }
+    
+    /**
+     * Values taken into consideration: matrix width, height, value types and values themselves.
+     * Please note that the same implementation is inherited by FullArithmeticMatrix, as 
+     * FullArithmeticMatrix does not have additional DISTINGUISHABLE attributes.
+     * @param obj
+     * @return 
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof FullMatrix)) {
+            return false;
+        }
+        if (obj==this) {
+            return true;
+        } 
+        if (obj.getClass().equals(this.getClass()))
+        {
+            //OK, because obj must be instance of FullMatrix
+            @SuppressWarnings("unchecked")
+            FullMatrix<T> o = (FullMatrix<T>)obj;
+            if (this.getHeight() != o.getHeight() || this.getWidth() != o.getWidth()) {
+                return false;
+            }         
+            for (int row = 0; row < this.getHeight(); row++)
+                    for (int col = 0; col < this.getWidth(); col++)
+                        if (!get(row,col).equals(o.get(row, col)))
+                            return false;
+            return true;
+        }
+	return false;
+    }
+    
+    /**
+     * Values taken into consideration: matrix width, height, value types and values themselves.
+     * Please note that the same implementation is inherited by FullArithmeticMatrix, as 
+     * FullArithmeticMatrix does not have additional DISTINGUISHABLE attributes.
+     * @return 
+     */
+    @Override
+    public int hashCode() {
+        int result = hashCode;
+        if(result == 0) {
+            result = 17; //init val
+            result += 31 * (this.getHeight() + this.getWidth() + this.getClass().hashCode()); 
+            for(List<T> row: this.vals) {
+                for (T item : row) {
+                    result = 31 * result + item.hashCode();
+                }
+            }
+            hashCode = result;
+        }
+        return result;
     }
 }

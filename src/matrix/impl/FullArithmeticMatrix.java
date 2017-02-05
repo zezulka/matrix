@@ -6,9 +6,9 @@ import misc.Errors;
 
 /**
  * Implementation of a numeric matrice.
- * highest order indices represent ROWS in a matrice, second indices are the columns in the matrice
+ * Highest order indices represent ROWS in a matrice, second indices are the columns in the matrice
  * @author Miloslav Zezulka, 2017
- * @param <T> any boxed numeric type (e.g. Integer, Float, ...) from Java core API
+ * @param <T> any boxed numeric type (e.g. Integer, Float, ...) extending java.lang.Number
  */
 public final class FullArithmeticMatrix<T extends Number> extends FullMatrix<T> implements ArithmeticMatrix<T> {
     private final NumberArithmetics<T> arithmetics; 

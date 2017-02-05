@@ -5,11 +5,14 @@
  */
 package main;
 
+import java.util.ArrayList;
+import java.util.List;
 import matrix.impl.FullArithmeticMatrix;
 import matrix.Matrix;
 import matrix.impl.IntegerArithmetics;
 import matrix.ArithmeticMatrix;
-//import matrix.impl.FullMatrix;
+import matrix.impl.FloatArithmetics;
+import matrix.impl.FullMatrix;
 
 /**
  *
@@ -17,24 +20,30 @@ import matrix.ArithmeticMatrix;
  */
 public class Demo {
     public static void main(String[] args) {
+        
         ArithmeticMatrix<Integer> m1 = new FullArithmeticMatrix<>(2, 2, IntegerArithmetics.getInstance());
         ArithmeticMatrix<Integer> m2 = new FullArithmeticMatrix<>(2, 2, IntegerArithmetics.getInstance());
-        m1.set(0, 0, 2);
-        m1.set(0, 1, 10);
-        m1.set(1, 0, 5);
-        m1.set(1, 1, 6);
+        ArithmeticMatrix<Integer> m3 = new FullArithmeticMatrix<>(new Integer[][]{{1,2,3}, {4,5,6}, {7,8,9}}, IntegerArithmetics.getInstance());
+
+        m1.set(0, 0, 1);
+        m1.set(0, 1, 1);
+        m1.set(1, 0, 1);
+        m1.set(1, 1, 1);
         
-        m2.set(0, 0, 2);
+        m2.set(0, 0, 1);
         m2.set(0, 1, 1);
         m2.set(1, 0, 1);
-        m2.set(1, 1, 3);
+        m2.set(1, 1, 1);
         
-        System.out.println(m1.toString() + m2.toString()); 
+        System.out.println(m3);
+        //m2.set(0, 0, -5);
         
-        Matrix<Integer> m12 = m1.multiply(m2);
+        //System.out.println(m1.toString() + m2.toString()); 
         
-        ArithmeticMatrix<Integer> intm = new FullArithmeticMatrix<>(new Integer[][]{{5, 16},{42, 0}}, IntegerArithmetics.getInstance());
+        //Matrix<Integer> m12 = m1.multiply(m2);
+
+        System.out.println(m1 + "\n" + m2);
         
-        System.out.println(intm);
+        System.out.println(m1.equals(m2) +", " + m1.hashCode() +", " + m2.hashCode());
     }
 }
